@@ -161,6 +161,8 @@ class _MapsPlacesAutocomplete extends State<MapsPlacesAutocomplete> {
     if (text != _lastText && text != "") {
       _lastText = text;
       _suggestions = await _addressService.search(text);
+      hideOverlay();
+      showOverlay();
     }
   }
 
@@ -187,7 +189,12 @@ class _MapsPlacesAutocomplete extends State<MapsPlacesAutocomplete> {
           TextField(
               focusNode: focusNode,
               controller: widget.controller,
-              onChanged: (text) async => await searchAddress(text),
+              onChanged: (text) async {
+                if (text.isEmpty) {
+                  hideOverlay();
+                }
+                await searchAddress(text);
+              },
               decoration: getInputDecoration()),
         ],
       ),
