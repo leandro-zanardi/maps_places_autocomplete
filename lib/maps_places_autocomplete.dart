@@ -8,10 +8,9 @@ import 'package:uuid/uuid.dart';
 import 'model/suggestion.dart';
 
 class MapsPlacesAutocomplete extends StatefulWidget {
-
   //callback triggered when a item is selected
   final void Function(Place place) onSuggestionClick;
-  
+
   //your maps api key, must not be null
   final String mapsApiKey;
 
@@ -95,19 +94,18 @@ class _MapsPlacesAutocomplete extends State<MapsPlacesAutocomplete> {
   }
 
   void showOverlay() {
-    final overlay = Overlay.of(context)!;
+    final overlay = Overlay.of(context);
     final RenderBox renderBox = context.findRenderObject() as RenderBox;
     final size = renderBox.size;
     entry = OverlayEntry(
         builder: (context) => Positioned(
-          width: size.width,
-          child: CompositedTransformFollower(
-              link: layerLink,
-              showWhenUnlinked: false,
-              offset: Offset(0, size.height + widget.overlayOffset),
-              child: buildOverlay()),
-        )
-      );
+              width: size.width,
+              child: CompositedTransformFollower(
+                  link: layerLink,
+                  showWhenUnlinked: false,
+                  offset: Offset(0, size.height + widget.overlayOffset),
+                  child: buildOverlay()),
+            ));
     overlay.insert(entry!);
   }
 
@@ -126,7 +124,7 @@ class _MapsPlacesAutocomplete extends State<MapsPlacesAutocomplete> {
 
   List<Widget> buildList() {
     List<Widget> list = [];
-    for (int i=0; i < _suggestions.length; i++) {
+    for (int i = 0; i < _suggestions.length; i++) {
       Suggestion s = _suggestions[i];
       Widget w = InkWell(
         child: widget.buildItem(s, i),
@@ -144,40 +142,45 @@ class _MapsPlacesAutocomplete extends State<MapsPlacesAutocomplete> {
   }
 
   Widget buildOverlay() => Material(
-    color: widget.containerDecoration != null ? Colors.transparent : Colors.white,
-    elevation: widget.elevation ?? 0,
-    child: Container(
-      decoration: widget.containerDecoration ?? const BoxDecoration(),
-      child: Column(
-        children: [
-          ...buildList(),
-          if(widget.showGoogleTradeMark)
-            const Padding(
-              padding: EdgeInsets.all(4.0),
-              child: Text("powered by google"),
-            )
-        ],
-      ),
-    ));
+      color: widget.containerDecoration != null
+          ? Colors.transparent
+          : Colors.white,
+      elevation: widget.elevation ?? 0,
+      child: Container(
+        decoration: widget.containerDecoration ?? const BoxDecoration(),
+        child: Column(
+          children: [
+            ...buildList(),
+            if (widget.showGoogleTradeMark)
+              const Padding(
+                padding: EdgeInsets.all(4.0),
+                child: Text("powered by google"),
+              )
+          ],
+        ),
+      ));
 
   String _lastText = "";
   Future<void> searchAddress(String text) async {
     if (text != _lastText && text != "") {
       _lastText = text;
-      _suggestions = await _addressService.search(text);
+
+      final suggestions = await _addressService.search(text);
+      setState(() {
+        _suggestions = suggestions;
+      });
     }
     entry!.markNeedsBuild();
   }
 
   InputDecoration getInputDecoration() {
-    if(widget.inputDecoration != null) {
-      if(widget.clearButton != null) {
+    if (widget.inputDecoration != null) {
+      if (widget.clearButton != null) {
         return widget.inputDecoration!.copyWith(
-          suffixIcon: IconButton(
-            icon: widget.clearButton!,
-            onPressed: _clearText,
-          )
-        );
+            suffixIcon: IconButton(
+          icon: widget.clearButton!,
+          onPressed: _clearText,
+        ));
       }
       return widget.inputDecoration!;
     }
@@ -191,11 +194,10 @@ class _MapsPlacesAutocomplete extends State<MapsPlacesAutocomplete> {
       child: Stack(
         children: [
           TextField(
-            focusNode: focusNode,
-            controller: _controller,
-            onChanged: (text) async => await searchAddress(text),
-            decoration: getInputDecoration()
-          ),
+              focusNode: focusNode,
+              controller: _controller,
+              onChanged: (text) async => await searchAddress(text),
+              decoration: getInputDecoration()),
         ],
       ),
     );
