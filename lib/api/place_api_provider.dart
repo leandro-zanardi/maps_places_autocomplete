@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 import 'package:http/http.dart';
 import 'package:maps_places_autocomplete/model/place.dart';
 import 'package:maps_places_autocomplete/model/suggestion.dart';
@@ -67,7 +68,7 @@ class PlaceApiProvider {
         path: '/maps/api/place/details/json',
         queryParameters: parameters);
 
-    print(request.toString());
+    log(request.toString());
 
     final response = await client.get(request);
 
@@ -82,7 +83,7 @@ class PlaceApiProvider {
         place.lat = result['result']['geometry']['location']['lat'] as double;
         place.lng = result['result']['geometry']['location']['lng'] as double;
 
-        components.forEach((c) {
+        for (var c in components) {
           final List type = c['types'];
           if (type.contains('street_number')) {
             place.streetNumber = c['long_name'];
@@ -105,7 +106,7 @@ class PlaceApiProvider {
           if (type.contains('postal_code')) {
             place.zipCode = c['long_name'];
           }
-        });
+        }
         return place;
       }
       throw Exception(result['error_message']);
