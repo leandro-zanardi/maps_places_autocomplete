@@ -33,8 +33,6 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-
-
   String? _streetNumber;
   String? _street;
   String? _city;
@@ -44,6 +42,8 @@ class _MyHomePageState extends State<MyHomePage> {
   String? _country;
   double? _lat;
   double? _lng;
+
+  final controller = TextEditingController();
 
   // write a function to receive the place details callback
   void onSuggestionClick(Place placeDetails) {
@@ -61,6 +61,12 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
@@ -74,8 +80,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-
-                  Container(color: Colors.blue, height:200),
+                  Container(color: Colors.blue, height: 200),
                   //
                   /******** */
                   //import the plugin
@@ -83,56 +88,59 @@ class _MyHomePageState extends State<MyHomePage> {
                   SizedBox(
                     height: 40,
                     child: MapsPlacesAutocomplete(
-                      mapsApiKey: 'YOUR KEY HERE',
-                      onSuggestionClick: onSuggestionClick,
-                      buildItem: (Suggestion suggestion, int index) {
-                        return Container(
-                          margin: const EdgeInsets.fromLTRB(2, 2, 2, 0),
-                          padding: const EdgeInsets.all(8),
-                          alignment: Alignment.centerLeft,
-                          color: Colors.white,
-                          child: Text(suggestion.description)
-                        );
-                      },
-                      inputDecoration: const InputDecoration(
-                        contentPadding: EdgeInsets.all(8),
-                        border: OutlineInputBorder(
-                            borderSide: BorderSide(color: Colors.white)),
-                        hintText:
-                            "Digite o endereço com número para melhorar a busca",
-                        errorText: null),
-                      clearButton: const Icon(Icons.close),
-                      componentCountry: 'br',
-                      language: 'pt-Br'
-                    ),
+                        controller: controller,
+                        mapsApiKey: 'YOUR KEY HERE',
+                        onSuggestionClick: onSuggestionClick,
+                        buildItem: (Suggestion suggestion, int index) {
+                          return Container(
+                              margin: const EdgeInsets.fromLTRB(2, 2, 2, 0),
+                              padding: const EdgeInsets.all(8),
+                              alignment: Alignment.centerLeft,
+                              color: Colors.white,
+                              child: Text(suggestion.description));
+                        },
+                        inputDecoration: const InputDecoration(
+                            contentPadding: EdgeInsets.all(8),
+                            border: OutlineInputBorder(
+                                borderSide: BorderSide(color: Colors.white)),
+                            hintText:
+                                "Digite o endereço com número para melhorar a busca",
+                            errorText: null),
+                        clearButton: const Icon(Icons.close),
+                        componentCountry: 'br',
+                        language: 'pt-Br'),
                   ),
                   /******** */
-        
-        
+
                   /******** */
                   // Use the details from callback
                   Container(
                     padding: const EdgeInsets.all(8),
                     child: Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                      Text('Número: ${_streetNumber ?? '---'}'),
-                      Text('Endereço: ${_street ?? '---'}'),
-                      Text('Bairro: ${_vicinity ?? '---'}'),
-                      Text('Cidade: ${_city ?? '---'}'),
-                      Text('Estado: ${_state ?? '---'}'),
-                      Text('País: ${_country ?? '---'}'),
-                      Text('CEP: ${_zipCode ?? '---'}'),
-                      Text('Latitude: ${_lat ?? '---'}'),
-                      Text('Longitude: ${_lng ?? '---'}'),
-                    ]),
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Número: ${_streetNumber ?? '---'}'),
+                          Text('Endereço: ${_street ?? '---'}'),
+                          Text('Bairro: ${_vicinity ?? '---'}'),
+                          Text('Cidade: ${_city ?? '---'}'),
+                          Text('Estado: ${_state ?? '---'}'),
+                          Text('País: ${_country ?? '---'}'),
+                          Text('CEP: ${_zipCode ?? '---'}'),
+                          Text('Latitude: ${_lat ?? '---'}'),
+                          Text('Longitude: ${_lng ?? '---'}'),
+                        ]),
                   ),
 
-                  Container(color: Colors.red, height:200),
-                  Container(color: Colors.orange, height:200),
-                  Container(color: Colors.blue, height:200),
-                  
+                  Container(color: Colors.red, height: 200),
+                  Container(color: Colors.orange, height: 200),
+                  Container(color: Colors.blue, height: 200),
+                  TextButton(
+                    onPressed: () {
+                      controller.text = '219, main avenue';
+                    },
+                    child: const Text('CLick to change controller'),
+                  )
                 ],
               ),
             ),
