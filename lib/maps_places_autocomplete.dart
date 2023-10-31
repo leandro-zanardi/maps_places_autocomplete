@@ -11,6 +11,9 @@ class MapsPlacesAutocomplete extends StatefulWidget {
 
   //callback triggered when a item is selected
   final void Function(Place place) onSuggestionClick;
+
+  //callback triggered when losing focus but no suggestion was selected
+  final void Function(String text)? onFinishedEditingWithNoSuggestion;
   
   //your maps api key, must not be null
   final String mapsApiKey;
@@ -43,11 +46,12 @@ class MapsPlacesAutocomplete extends StatefulWidget {
   //in witch language the results are being returned
   final String? language;
 
-  const MapsPlacesAutocomplete(
-      {Key? key,
+  const MapsPlacesAutocomplete({
+      Key? key,
       required this.onSuggestionClick,
       required this.mapsApiKey,
       required this.buildItem,
+      this.onFinishedEditingWithNoSuggestion,
       this.clearButton,
       this.containerDecoration,
       this.inputDecoration,
@@ -55,8 +59,8 @@ class MapsPlacesAutocomplete extends StatefulWidget {
       this.overlayOffset = 4,
       this.showGoogleTradeMark = true,
       this.componentCountry,
-      this.language})
-      : super(key: key);
+      this.language
+    }) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => _MapsPlacesAutocomplete();
@@ -111,15 +115,32 @@ class _MapsPlacesAutocomplete extends State<MapsPlacesAutocomplete> {
     overlay.insert(entry!);
   }
 
-  void hideOverlay() {
-    entry?.remove();
-    entry = null;
+  void hideOverlay({bool suggestionHasBeenSelected = false}) {
+    if(entry != null) {
+      entry?.remove();
+      entry = null;
+
+      if(!suggestionHasBeenSelected) {
+        triggerNoSuggestionCallback();
+      }
+    }
+  }
+
+  void triggerNoSuggestionCallback() {
+    if(widget.onFinishedEditingWithNoSuggestion != null) {
+      widget.onFinishedEditingWithNoSuggestion!(_controller.text);
+    }
   }
 
   void _clearText() {
     setState(() {
       _controller.clear();
-      focusNode.unfocus();
+      if(!focusNode.hasFocus) {
+        triggerNoSuggestionCallback();
+      }
+      else {
+        focusNode.unfocus();
+      }
       _suggestions = [];
     });
   }
@@ -132,7 +153,7 @@ class _MapsPlacesAutocomplete extends State<MapsPlacesAutocomplete> {
         child: widget.buildItem(s, i),
         onTap: () async {
           _controller.text = s.description;
-          hideOverlay();
+          hideOverlay(suggestionHasBeenSelected: true);
           focusNode.unfocus();
           Place place = await _addressService.getPlaceDetail(s.placeId);
           widget.onSuggestionClick(place);
