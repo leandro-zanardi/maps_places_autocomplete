@@ -85,6 +85,11 @@ class _MyHomePageState extends State<MyHomePage> {
                     child: MapsPlacesAutocomplete(
                       mapsApiKey: 'YOUR KEY HERE',
                       onSuggestionClick: onSuggestionClick,
+                      onFinishedEditingWithNoSuggestion: (text) {
+                        // you should invalidate the last entry of onSuggestionClick if you really need a valid location,
+                        // otherwise decide what to do based on what the user typed, can be an empty string
+                        debugPrint("text typed: " + text);
+                      },
                       buildItem: (Suggestion suggestion, int index) {
                         return Container(
                           margin: const EdgeInsets.fromLTRB(2, 2, 2, 0),
